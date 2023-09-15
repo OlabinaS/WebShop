@@ -17,12 +17,13 @@ namespace WebShop.Infrastructure.Configuration
 
 			builder.Property(x => x.Comment).HasMaxLength(500);
 
+			builder.Property(x => x.DeliveryDate).IsRequired(false);
+
 			builder.HasOne(x => x.Customer)
 				   .WithMany(x => x.Orders)
-				   .HasForeignKey(x => x.CustomerId)
-				   .OnDelete(DeleteBehavior.Cascade);
+				   .HasForeignKey(x => x.CustomerId);
 
-			//OrderDate, DeliveryDate, Address
+			//OrderDate, Address
 		}
 	}
 }

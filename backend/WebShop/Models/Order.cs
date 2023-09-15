@@ -11,7 +11,7 @@ namespace WebShop.Models
 		public long CustomerId { get; set; }
 		public Customer Customer { get; set; }
 		public DateTime OrderDate { get; set; }
-		public DateTime DeliveryDate { get; set; }
+		public DateTime? DeliveryDate { get; set; }
 		public string Address { get; set; }
 		public string Comment { get; set; }
 		public List<ItemInOrder> Items { get; set; }

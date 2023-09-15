@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace WebShop.Models
 {
-	public enum Ver { accepted, declined, processing }
+	public enum Ver { Pending, Approved, Denied}
 	public class Seller : User
 	{
 		public Ver Verification { get; set; }
