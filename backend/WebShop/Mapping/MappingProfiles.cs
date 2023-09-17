@@ -6,6 +6,7 @@ using AutoMapper;
 using WebShop.Dto;
 using WebShop.Dto.Item;
 using WebShop.Dto.Seller;
+using WebShop.Dto.User;
 using WebShop.Models;
 
 namespace WebShop.Mapping
@@ -23,6 +24,13 @@ namespace WebShop.Mapping
 			CreateMap<AddItemDto, Item>();
 
 			CreateMap<SellerDto, Seller>();
+
+			CreateMap<Usr, Customer>();
+			CreateMap<Usr, Seller>();
+			CreateMap<Usr, Admin>();
+
+			CreateMap<NewUserDto, Usr>();
+
 
 		}
 	}

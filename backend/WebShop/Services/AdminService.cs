@@ -16,26 +16,25 @@ namespace WebShop.Services
 	{
 		private readonly IMapper _mapper;
 		private readonly ITokenHelper _token;
-		private readonly WebShopDbContext _dbContext;
+		private readonly IDbHelper _dbHelper;
 
 		SellerRepository sellerRepo;
 
-		public AdminService(IMapper mapper, ITokenHelper token, WebShopDbContext dbContext)
+		public AdminService(IMapper mapper, ITokenHelper token, IDbHelper dbHelper)
 		{
 			_mapper = mapper;
 			_token = token;
-			_dbContext = dbContext;
+			_dbHelper = dbHelper;
 
-			sellerRepo = new SellerRepository(dbContext);
 		}
 		public object GetAllSellers()
 		{
-			List<Seller> sellerDB = sellerRepo.GetAll().ToList();
+			List<Seller> sellerDB = _dbHelper.sellerRepository.GetAll().ToList();
 			List<SellerDto> sellerDto = new List<SellerDto>();
 
 			foreach(Seller seller in sellerDB)
 			{
-				sellerDto.Add(new SellerDto(seller.Name, seller.Lastname, seller.Username, seller.Email, seller.Password, seller.Address, seller.BDay, seller.Verification));
+				sellerDto.Add(new SellerDto(seller.Id, seller.Name, seller.Lastname, seller.Username, seller.Email, seller.Password, seller.Address, seller.BDay, seller.Verification));
 			}
 			SellerListDto sellerListDto = new SellerListDto() { Sellers = sellerDto };
 

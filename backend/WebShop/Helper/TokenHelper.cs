@@ -48,6 +48,7 @@ namespace WebShop.Helper
                 claims.Add(new Claim("name", user.Name));
                 claims.Add(new Claim("lastname", user.Lastname));
                 claims.Add(new Claim("email", user.Email));
+                claims.Add(new Claim(ClaimTypes.DateOfBirth, user.BDay.ToString()));
             }
             else if (user.role == "Seller")
             {
@@ -60,6 +61,7 @@ namespace WebShop.Helper
                 claims.Add(new Claim("name", user.Name));
                 claims.Add(new Claim("lastname", user.Lastname));
                 claims.Add(new Claim("email", user.Email));
+                claims.Add(new Claim(ClaimTypes.DateOfBirth, user.BDay.ToString()));
             }
             else if (user.role == "Customer")
             {
@@ -72,6 +74,7 @@ namespace WebShop.Helper
                 claims.Add(new Claim("name", user.Name));
                 claims.Add(new Claim("lastname", user.Lastname));
                 claims.Add(new Claim("email", user.Email));
+                claims.Add(new Claim(ClaimTypes.DateOfBirth, user.BDay.ToString()));
             }
 
             SymmetricSecurityKey secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key));

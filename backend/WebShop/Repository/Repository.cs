@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using WebShop.Helper.Interfaces;
 using WebShop.Infrastructure;
 using WebShop.Repository.Interfaces;
 
@@ -11,7 +12,8 @@ namespace WebShop.Repository
 	public class Repository<T> : IRepository<T> where T : class
 	{
 		private readonly object _lockObj = new object();
-		private readonly WebShopDbContext _dbContext;
+		//private readonly IDbHelper _dbHelper;
+		protected readonly WebShopDbContext _dbContext;
 
 		public Repository(WebShopDbContext dbContext)
 		{
@@ -21,7 +23,7 @@ namespace WebShop.Repository
 		{
 			lock(_lockObj)
 			{
-				_dbContext.Set<T>().Add(entity);
+				 _dbContext.Set<T>().Add(entity);
 			}
 		}
 

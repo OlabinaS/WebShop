@@ -111,6 +111,7 @@ namespace WebShop
 			services.AddScoped<IUserHelper, UserHelper>();
 			services.AddScoped<IResultHelper, ResultHelper>();
 			services.AddScoped<ITokenHelper, TokenHelper>();
+			services.AddScoped<IDbHelper, DbHelper>();
 
 			services.AddScoped<IUserService, UserService>();
 			services.AddScoped<ICustomerService, CustomerService>();
@@ -123,7 +124,7 @@ namespace WebShop
 			{
 				options.AddPolicy(name: _cors, builder =>
 				{
-					builder.WithOrigins("http://localhost:44326")
+					builder.WithOrigins("http://localhost:3000")
 						   .AllowAnyHeader()
 						   .AllowAnyMethod()
 						   .AllowCredentials();

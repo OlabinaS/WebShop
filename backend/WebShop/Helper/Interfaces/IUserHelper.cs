@@ -8,6 +8,7 @@ namespace WebShop.Helper.Interfaces
 {
 	public interface IUserHelper
 	{
-		public Usr UserByToken(string token, ITokenHelper _tokenHelper);
+		public IResultHelper UserByToken(string token, ITokenHelper _tokenHelper);
+		public Usr UserByEmail(string email);
 	}
 }

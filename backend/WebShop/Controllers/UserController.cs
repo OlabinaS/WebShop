@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -6,6 +7,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using WebShop.Dto;
+using WebShop.Dto.User;
 using WebShop.Interfaces;
 
 namespace WebShop.Controllers
@@ -60,6 +62,11 @@ namespace WebShop.Controllers
 				else if (token == "IncorrectPassword")
 					return Unauthorized();
 
+				CookieOptions options = new CookieOptions();
+				options.Expires = DateTime.Now.AddMinutes(20);
+				options.SameSite = SameSiteMode.None;
+				Response.Cookies.Append("Authorization", $"Berer {token}");
+
 				return Ok(token);
 			}
 			catch(Exception)
@@ -85,5 +92,24 @@ namespace WebShop.Controllers
 		}
 
 
+		[HttpPut("update-user")]
+		public IActionResult UpdateUser(NewUserDto newUserDto)
+		{
+			try
+			{
+				string token = Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").LastOrDefault();
+
+				string result = _userService.UpdateUser(token, newUserDto);
+				if(result != "")
+				{
+					return BadRequest(result);
+				}
+				return Ok();
+			}
+			catch(Exception)
+			{
+				return StatusCode(500);
+			}
+		}
 	}
 }

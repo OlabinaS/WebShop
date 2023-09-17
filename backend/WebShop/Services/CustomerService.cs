@@ -17,21 +17,18 @@ namespace WebShop.Services
 	{
 		private readonly IMapper _mapper;
 		private readonly ITokenHelper _token;
-		private readonly WebShopDbContext _dbContext;
+		private readonly IDbHelper _dbHelper;
 
-		ItemRepository itemRepo;
-
-		public CustomerService(IMapper mapper, ITokenHelper	token, WebShopDbContext dbContext)
+		public CustomerService(IMapper mapper, ITokenHelper	token, IDbHelper dbHelper)
 		{
 			_mapper = mapper;
 			_token = token;
-			_dbContext = dbContext;
+			_dbHelper = dbHelper;
 
-			itemRepo = new ItemRepository(dbContext);
 		}
 		public object GetItems()
 		{
-			List<Item> itemsDB = itemRepo.GetAll().ToList();
+			List<Item> itemsDB = _dbHelper.itemRepository.GetAll().ToList();
 			List<ItemDto> itemsDto = new List<ItemDto>();
 
 			foreach(Item item in itemsDB)

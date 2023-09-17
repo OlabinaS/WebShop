@@ -6,6 +6,8 @@ using System.Net.Mail;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using WebShop.Dto;
+using WebShop.Dto.User;
+using WebShop.Helper;
 using WebShop.Helper.Interfaces;
 using WebShop.Infrastructure;
 using WebShop.Interfaces;
@@ -18,22 +20,17 @@ namespace WebShop.Services
 	public class UserService : IUserService
 	{
 		private readonly IMapper _mapper;
-		private WebShopDbContext _dbContext;
 		private readonly ITokenHelper _token;
+		private readonly IDbHelper _dbHelper;
+		private readonly UserHelper _userHelper;
 
-		AdminRepository adminRepo;
-		CustomerRepository customerRepo;
-		SellerRepository sellerRepo;
 
-		public UserService(IMapper mapper, WebShopDbContext dbContext, ITokenHelper token)
+		public UserService(IMapper mapper, ITokenHelper token, IDbHelper dbHelper)
 		{
 			_mapper = mapper;
-			_dbContext = dbContext;
 			_token = token;
-
-			adminRepo = new AdminRepository(_dbContext);
-			customerRepo = new CustomerRepository(_dbContext);
-			sellerRepo = new SellerRepository(_dbContext);
+			_dbHelper = dbHelper;
+			_userHelper = new UserHelper(_dbHelper);
 		}
 
 		
@@ -55,12 +52,12 @@ namespace WebShop.Services
 			}
 
 			//Does user exist
-			if(registrationDto.Role == "Customer")
-				if (_dbContext.Customers.Any(a => a.Email == registrationDto.Email) || _dbContext.Customers.Any(a => a.Username == registrationDto.Username))
+			if (registrationDto.Role == "Customer")
+				if (_dbHelper.customerRepository.FindFirst(a => a.Email == registrationDto.Email) != null || _dbHelper.customerRepository.FindFirst(a => a.Username == registrationDto.Username) != null)
 					return "Exist";
 
 			if(registrationDto.Role == "Seller")
-				if (_dbContext.Sellers.Any(a => a.Email == registrationDto.Email) || _dbContext.Sellers.Any(a => a.Username == registrationDto.Username))
+				if (_dbHelper.sellerRepository.FindFirst(a => a.Email == registrationDto.Email) != null || _dbHelper.sellerRepository.FindFirst(a => a.Username == registrationDto.Username) != null)
 					return "Exist";
 
 			//Check for role
@@ -68,14 +65,14 @@ namespace WebShop.Services
 			{
 				Customer customer = _mapper.Map<Customer>(registrationDto);
 				customer.Password = BCrypt.Net.BCrypt.HashPassword(registrationDto.Password);
-				customerRepo.Add(customer);
+				_dbHelper.customerRepository.Add(customer);
 			}
 			else if(registrationDto.Role.Equals("Seller"))
 			{
 				Seller seller = _mapper.Map<Seller>(registrationDto);
 				seller.Verification = Ver.Pending;
 				seller.Password = BCrypt.Net.BCrypt.HashPassword(registrationDto.Password);
-				sellerRepo.Add(seller);
+				_dbHelper.sellerRepository.Add(seller);
 				//send email
 
 			}
@@ -84,7 +81,7 @@ namespace WebShop.Services
 				return "Bad";
 			}
 			//save changes
-			_dbContext.SaveChanges();
+			_dbHelper.SaveChange();
 
 			return "Ok";
 		}
@@ -93,15 +90,15 @@ namespace WebShop.Services
 		{
 			Usr user = new Usr();
 			//does email exist
-			if (customerRepo.FindFirst(a => a.Email == loginDto.Email) is Customer customer)
+			if (_dbHelper.customerRepository.FindFirst(a => a.Email == loginDto.Email) is Customer customer)
 			{
 				user = new Usr(customer);
 			}
-			else if (adminRepo.FindFirst(a => a.Email == loginDto.Email) is Admin admin)
+			else if (_dbHelper.adminRepository.FindFirst(a => a.Email == loginDto.Email) is Admin admin)
 			{
 				user = new Usr(admin);
 			}
-			else if (sellerRepo.FindFirst(a => a.Email == loginDto.Email) is Seller seller)
+			else if (_dbHelper.sellerRepository.FindFirst(a => a.Email == loginDto.Email) is Seller seller)
 			{
 				user = new Usr(seller);
 			}
@@ -133,12 +130,84 @@ namespace WebShop.Services
 				var name = user.FindFirst("name")?.Value;
 				var lastname = user.FindFirst("lastname")?.Value;
 				var email = user.FindFirst(ClaimTypes.Email)?.Value;
+				var bday = user.FindFirst(ClaimTypes.DateOfBirth)?.Value;
 
-
-				return (new { IsLoggedIn = true, UserId = userId, Username = username, Role = userRole, Name = name, Lastname = lastname, Email = email });
+				return (new { IsLoggedIn = true, UserId = userId, Username = username, Role = userRole, Name = name, Lastname = lastname, Email = email, BDay = bday });
 			}
 
 			return (new { IsLoggedIn = false });
+		}
+
+		public string UpdateUser(string token, NewUserDto newUserDto)
+		{
+			IResultHelper result = _userHelper.UserByToken(token, _token);
+			User currentUser = null;
+
+			if (result.Type == "admin")
+				currentUser = (Admin)result.User;
+			else if (result.Type == "customer")
+				currentUser = (Customer)result.User;
+			else if (result.Type == "seller")
+				currentUser = (Seller)result.User;
+
+			Usr newUser = _mapper.Map<Usr>(newUserDto);
+
+			if(currentUser == null)
+			{
+				return "User doesn't exist!";
+			}
+			if(newUser == null)
+			{
+				return "Can't update!";
+			}
+			if (_userHelper.UserByEmail(newUser.Email) != null && newUser.Email != currentUser.Email)
+			{
+				//result = new Result(false, ErrorCode.Conflict, $"Username {newUser.Username} already exists!");
+				return $"User with {newUser.Email} already exists!";
+			}
+
+			if (newUser.Username != "string")
+				currentUser.Username = newUser.Username;
+			if (newUser.Name != "string")
+				currentUser.Name = newUser.Name;
+			if (newUser.Lastname != "string")
+				currentUser.Lastname = newUser.Lastname;
+			if (newUser.Address != "string")
+				currentUser.Address = newUser.Address;
+			if (newUser.Email != "string")
+				currentUser.Email = newUser.Email;
+			if (newUser.BDay != System.DateTime.MinValue)
+				currentUser.BDay = newUser.BDay;
+
+			if(currentUser.GetType() == typeof(Admin))
+			{
+				//Admin admin = _mapper.Map<Admin>(currentUser);
+				_dbHelper.adminRepository.Update((Admin)currentUser);
+			}
+			else if (currentUser.GetType() == typeof(Customer))
+			{
+				//Customer customer = _mapper.Map<Customer>(currentUser);
+				//_dbHelper.customerRepository.Delete(customer);
+				//_dbHelper.SaveChange();
+				//_dbHelper.customerRepository.Add(customer);
+				
+
+				_dbHelper.customerRepository.Update((Customer)currentUser);
+			}
+			else if(currentUser.GetType() == typeof(Seller))
+			{
+				//Seller seller = _mapper.Map<Seller>(currentUser);
+				_dbHelper.sellerRepository.Update((Seller)currentUser);
+			}
+			else
+			{
+				return "NotFound";
+			}
+
+			_dbHelper.SaveChange();
+
+			return "";
+
 		}
 	}
 }

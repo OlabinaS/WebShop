@@ -17,30 +17,29 @@ namespace WebShop.Services
 	public class SellerService : ISellerService
 	{
 		private readonly IMapper _mapper;
-		private readonly WebShopDbContext _dbContext;
 		private readonly ITokenHelper _tokenHelper;
+		private readonly IDbHelper _dbHelper;
 		private readonly UserHelper _userHelper;
 		private readonly SellerHelper _sellerHelper;
 
-		SellerRepository sellerRepo;
-        ItemRepository itemRepo;
 
-		public SellerService(IMapper mapper, WebShopDbContext dbContext, ITokenHelper tokenHelper)
+		public SellerService(IMapper mapper, ITokenHelper tokenHelper, IDbHelper dbHelper)
 		{
 			_mapper = mapper;
-			_dbContext = dbContext;
             _tokenHelper = tokenHelper;
-
+			_dbHelper = dbHelper;
 			_sellerHelper = new SellerHelper();
-			_userHelper = new UserHelper(_dbContext);
-			sellerRepo = new SellerRepository(_dbContext);
-            itemRepo = new ItemRepository(_dbContext);
+			_userHelper = new UserHelper(_dbHelper);
 		}
 		public IResultHelper GetAllItems(string token)
 		{
-            IResultHelper result;
+            IResultHelper result = _userHelper.UserByToken(token, _tokenHelper);
+			Seller seller = null;
 
-            Seller seller = new Seller(_userHelper.UserByToken(token, _tokenHelper));
+			if (result.Type == "seller")
+				seller = (Seller)result.User;
+			else
+				return new ResultHelper(false, "NotExist");
 
             if(seller == null)
 			{
@@ -53,7 +52,7 @@ namespace WebShop.Services
 				return result;
 			}
 
-            List<Item> items = itemRepo.GetAll().ToList();
+            List<Item> items = _dbHelper.itemRepository.GetAll().ToList();
             items = _sellerHelper.GetItemsOfSeller(items, seller.Id);
 
             if (items.Count == 0)
@@ -72,9 +71,15 @@ namespace WebShop.Services
 		}
 		public string AddItems(AddItemDto addItemDto, string token)
 		{
-			Seller seller = new Seller(_userHelper.UserByToken(token, _tokenHelper));
+			IResultHelper result = _userHelper.UserByToken(token, _tokenHelper);
+			Seller seller = null;
 
-			if(seller == null)
+			if (result.Type == "seller")
+				seller = (Seller)result.User;
+			else
+				return "Seller doesn't exists";
+
+			if (seller == null)
 				return "Seller doesn't exists";
 
 			if (seller.Verification != Ver.Approved)
@@ -83,15 +88,15 @@ namespace WebShop.Services
 			if (addItemDto.Quantity <= 0)
 				return "Quantity of items can't be less than 0";
 
-			if (itemRepo.FindFirst(i => i.SellerId == seller.Id && i.Name == addItemDto.Name) != null)
+			if (_dbHelper.itemRepository.FindFirst(i => i.SellerId == seller.Id && i.Name == addItemDto.Name) != null)
 				return "Seller already has an item with this name";
 
 			Item item = _mapper.Map<Item>(addItemDto);
 			item.SellerId = seller.Id;
 
-			itemRepo.Add(item);
+			_dbHelper.itemRepository.Add(item);
 
-			_dbContext.SaveChanges();
+			_dbHelper.SaveChange();
 
 			return "Ok";
 		}
