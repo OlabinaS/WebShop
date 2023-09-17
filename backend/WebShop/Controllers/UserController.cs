@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using WebShop.Dto;
 using WebShop.Interfaces;
@@ -65,5 +67,23 @@ namespace WebShop.Controllers
 				return StatusCode(500);
 			}
 		}
+
+		//[Authorize]
+		[HttpGet("isLoggedIn")]
+		public IActionResult IsLoggedIn()
+		{
+			try
+			{
+				object result = _userService.IsLoggedIn(User);
+
+				return Ok(result);
+			}
+			catch (Exception)
+			{
+				return StatusCode(500);
+			}
+		}
+
+
 	}
 }

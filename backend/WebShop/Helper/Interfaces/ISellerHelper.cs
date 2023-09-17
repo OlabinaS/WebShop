@@ -6,11 +6,9 @@ using WebShop.Models;
 
 namespace WebShop.Helper.Interfaces
 {
-	public interface ITokenHelper
+	public interface ISellerHelper
 	{
-		string GetToken(Usr user);
-		string GetClaim(string tokenStr, string type);
-
-
+		List<Item> GetItemsOfSeller(List<Item> items, long sellerId);
+		
 	}
 }

@@ -58,7 +58,7 @@ namespace WebShop
 					Name = "Authorization",
 					Type = SecuritySchemeType.Http,
 					BearerFormat = "JWT",
-					Scheme = "bearer"
+					Scheme = "Bearer"
 				});
 
 				c.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -106,12 +106,32 @@ namespace WebShop
 		public void AllServices(IServiceCollection services)
 		{
 			//---SERVICES---
-			services.AddScoped<IUserService, UserService>();
-
+			
+			services.AddScoped<ISellerHelper, SellerHelper>();
+			services.AddScoped<IUserHelper, UserHelper>();
+			services.AddScoped<IResultHelper, ResultHelper>();
 			services.AddScoped<ITokenHelper, TokenHelper>();
 
-			//---AUTH---
-			/*services.AddAuthentication(opt =>
+			services.AddScoped<IUserService, UserService>();
+			services.AddScoped<ICustomerService, CustomerService>();
+			services.AddScoped<ISellerService, SellerService>();
+			services.AddScoped<IAdminService, AdminService>();
+
+
+			//---CROS---
+			services.AddCors(options =>
+			{
+				options.AddPolicy(name: _cors, builder =>
+				{
+					builder.WithOrigins("http://localhost:44326")
+						   .AllowAnyHeader()
+						   .AllowAnyMethod()
+						   .AllowCredentials();
+				});
+			});
+
+			//---AUTH---'.
+			services.AddAuthentication(opt =>
 			{
 				opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
 				opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -125,28 +145,29 @@ namespace WebShop
 					  ValidateLifetime = true,
 					  ValidateIssuerSigningKey = true,
 					  ValidIssuer = "http://localhost:44326",
-					  IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["SecretKey"])),
+					  IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Key"])),
 				  };
-			  });*/
-
-
-			//---CROS---
-			services.AddCors(options =>
+			  });
+			/*services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+			.AddJwtBearer(options =>
 			{
-				options.AddPolicy(name: _cors, builder =>
+				options.TokenValidationParameters = new TokenValidationParameters
 				{
-					builder.WithOrigins("http://localhost:3000")
-						   .AllowAnyHeader()
-						   .AllowAnyMethod()
-						   .AllowCredentials();
-				});
-			});
+					ValidateIssuer = true,
+					ValidateAudience = false,
+					ValidateLifetime = true,
+					ValidateIssuerSigningKey = true,
+					ValidIssuer = "http://localhost:44326",
+					IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("Key"))
+				};
+			});*/
+
 
 			//---REPOSITORY---
 			services.AddScoped<IAdminRepository, AdminRepository>();
 			services.AddScoped<ICustomerRepository, CustomerRepository>();
 			services.AddScoped<ISellerRepository, SellerRepository>();
-
+			services.AddScoped<IItemRepository, ItemRepository>();
 
 
 			//---MAPPER---

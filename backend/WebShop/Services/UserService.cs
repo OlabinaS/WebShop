@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mail;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using WebShop.Dto;
 using WebShop.Helper.Interfaces;
@@ -54,17 +55,13 @@ namespace WebShop.Services
 			}
 
 			//Does user exist
-			if (_dbContext.Customers.Any(a => a.Email == registrationDto.Email))
-				return "Exist";
+			if(registrationDto.Role == "Customer")
+				if (_dbContext.Customers.Any(a => a.Email == registrationDto.Email) || _dbContext.Customers.Any(a => a.Username == registrationDto.Username))
+					return "Exist";
 
-			if (_dbContext.Sellers.Any(a => a.Email == registrationDto.Email))
-				return "Exist";
-
-			if (_dbContext.Customers.Any(a => a.Username == registrationDto.Username))
-				return "Exist";
-
-			if (_dbContext.Sellers.Any(a => a.Username == registrationDto.Username))
-				return "Exist";
+			if(registrationDto.Role == "Seller")
+				if (_dbContext.Sellers.Any(a => a.Email == registrationDto.Email) || _dbContext.Sellers.Any(a => a.Username == registrationDto.Username))
+					return "Exist";
 
 			//Check for role
 			if (registrationDto.Role.Equals("Customer"))
@@ -126,5 +123,22 @@ namespace WebShop.Services
 			//throw new NotImplementedException();
 		}
 
+		public object IsLoggedIn(ClaimsPrincipal user)
+		{
+			if (user.Identity.IsAuthenticated)
+			{
+				var userId = user.FindFirst("id")?.Value;
+				var username = user.FindFirst("username")?.Value;
+				var userRole = user.FindFirst(ClaimTypes.Role)?.Value;
+				var name = user.FindFirst("name")?.Value;
+				var lastname = user.FindFirst("lastname")?.Value;
+				var email = user.FindFirst(ClaimTypes.Email)?.Value;
+
+
+				return (new { IsLoggedIn = true, UserId = userId, Username = username, Role = userRole, Name = name, Lastname = lastname, Email = email });
+			}
+
+			return (new { IsLoggedIn = false });
+		}
 	}
 }

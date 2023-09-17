@@ -8,11 +8,11 @@ using WebShop.Repository.Interfaces;
 
 namespace WebShop.Repository
 {
-	public class SellerRepository : Repository<Seller>, ISellerRepository
+	public class ItemRepository : Repository<Item>, IItemRepository
 	{
-		public SellerRepository(WebShopDbContext context) : base(context)
+		public ItemRepository(WebShopDbContext dbContext) : base(dbContext)
 		{
-			
+
 		}
 	}
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -13,7 +14,24 @@ namespace WebShop.Helper
 {
 	public class TokenHelper : ITokenHelper
 	{
-        string _key;
+        string _key = "Slz5xuXSQ3qGwCu1yIGIqKDW7wAArBo0z7n3M";
+        //string _key;
+
+        public TokenHelper(IConfiguration configuration)
+        {
+            _key = configuration.GetSection("Key").Value;
+        }
+
+		public string GetClaim(string tokenStr, string type)
+		{
+            JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+            JwtSecurityToken token = handler.ReadJwtToken(tokenStr);
+
+            string claim = token.Claims.Where(c => c.Type == type).FirstOrDefault().Value;
+
+            return claim;
+		}
+
 		public string GetToken(Usr user)
 		{
             List<Claim> claims = new List<Claim>();
@@ -25,7 +43,11 @@ namespace WebShop.Helper
                 claims.Add(new Claim("role", user.role));
                 claims.Add(new Claim("id", user.Id.ToString()));
                 claims.Add(new Claim("username", user.Username));
+                claims.Add(new Claim("status", user.verification.ToString()));
                 claims.Add(new Claim("logKind", "form"));
+                claims.Add(new Claim("name", user.Name));
+                claims.Add(new Claim("lastname", user.Lastname));
+                claims.Add(new Claim("email", user.Email));
             }
             else if (user.role == "Seller")
             {
@@ -35,7 +57,9 @@ namespace WebShop.Helper
                 claims.Add(new Claim("username", user.Username));
                 claims.Add(new Claim("status", user.verification.ToString()));
                 claims.Add(new Claim("logKind", "form"));
-
+                claims.Add(new Claim("name", user.Name));
+                claims.Add(new Claim("lastname", user.Lastname));
+                claims.Add(new Claim("email", user.Email));
             }
             else if (user.role == "Customer")
             {
@@ -43,8 +67,11 @@ namespace WebShop.Helper
                 claims.Add(new Claim("role", user.role));
                 claims.Add(new Claim("id", user.Id.ToString()));
                 claims.Add(new Claim("username", user.Username));
+                claims.Add(new Claim("status", user.verification.ToString()));
                 claims.Add(new Claim("logKind", "form"));
-
+                claims.Add(new Claim("name", user.Name));
+                claims.Add(new Claim("lastname", user.Lastname));
+                claims.Add(new Claim("email", user.Email));
             }
 
             SymmetricSecurityKey secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key));
