@@ -91,9 +91,28 @@ namespace WebShop.Controllers
 			}
 		}
 
+		[HttpGet("newToken")]
+		public IActionResult GetNewToken()
+		{
+			try
+			{
+				string token = _userService.GetNewToken(User);
+
+				if(token == "NotExist")
+				{
+					return StatusCode(500);
+				}
+				return Ok(token);
+			}
+			catch (Exception)
+			{
+				return StatusCode(500);
+			}
+		}
+
 
 		[HttpPut("update-user")]
-		public IActionResult UpdateUser(NewUserDto newUserDto)
+		public IActionResult UpdateUser([FromForm] NewUserDto newUserDto)
 		{
 			try
 			{

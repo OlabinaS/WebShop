@@ -34,5 +34,14 @@ namespace WebShop.Controllers
 				return StatusCode(500);
 			}
 		}
+
+		/*[HttpPost("checkout-order")]
+		public IActionResult CheckoutOrder()
+		{
+			//List Decs, qua, name, price, id
+
+
+		}*/
+
 	}
 }

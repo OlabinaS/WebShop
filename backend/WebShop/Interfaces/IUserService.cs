@@ -13,6 +13,7 @@ namespace WebShop.Interfaces
 		public string Registration(RegistrationDto registrationDto);
 		public string Login(LoginDto loginDto);
 		public object IsLoggedIn(ClaimsPrincipal user);
+		public string GetNewToken(ClaimsPrincipal user);
 		public string UpdateUser(string token, NewUserDto newUserDto);
 
 	}

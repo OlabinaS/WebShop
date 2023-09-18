@@ -138,6 +138,40 @@ namespace WebShop.Services
 			return (new { IsLoggedIn = false });
 		}
 
+		public string GetNewToken(ClaimsPrincipal user)
+		{
+			string userId = null;
+			if(user.Identity.IsAuthenticated)
+			{
+				userId = user.FindFirst("id")?.Value;
+			}
+
+			long Id = long.Parse(userId);
+			Usr usr = new Usr();
+
+			if (_dbHelper.customerRepository.FindFirst(a => a.Id == Id) is Customer customer)
+			{
+				usr = new Usr(customer);
+			}
+			else if (_dbHelper.adminRepository.FindFirst(a => a.Id == Id) is Admin admin)
+			{
+				usr = new Usr(admin);
+			}
+			else if (_dbHelper.sellerRepository.FindFirst(a => a.Id == Id) is Seller seller)
+			{
+				usr = new Usr(seller);
+			}
+			else
+			{
+				return "NotExist";
+			}
+
+			string token = _token.GetToken(usr);
+			TokenDto tokenDto = new TokenDto(token);
+
+			return token;
+		}
+
 		public string UpdateUser(string token, NewUserDto newUserDto)
 		{
 			IResultHelper result = _userHelper.UserByToken(token, _token);
