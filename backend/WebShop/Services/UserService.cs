@@ -200,15 +200,15 @@ namespace WebShop.Services
 				return $"User with {newUser.Email} already exists!";
 			}
 
-			if (newUser.Username != "string")
+			if (newUser.Username != "string" && newUser.Username != "" && newUser.Username != null)
 				currentUser.Username = newUser.Username;
-			if (newUser.Name != "string")
+			if (newUser.Name != "string" && newUser.Name != "" && newUser.Name != null)
 				currentUser.Name = newUser.Name;
-			if (newUser.Lastname != "string")
+			if (newUser.Lastname != "string" && newUser.Lastname != "" && newUser.Lastname != null)
 				currentUser.Lastname = newUser.Lastname;
-			if (newUser.Address != "string")
+			if (newUser.Address != "string" && newUser.Address != "" && newUser.Address != null)
 				currentUser.Address = newUser.Address;
-			if (newUser.Email != "string")
+			if (newUser.Email != "string" && newUser.Email != "" && newUser.Email != null)
 				currentUser.Email = newUser.Email;
 			if (newUser.BDay != System.DateTime.MinValue)
 				currentUser.BDay = newUser.BDay;

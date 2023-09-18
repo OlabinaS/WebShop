@@ -112,7 +112,7 @@ namespace WebShop.Controllers
 
 
 		[HttpPut("update-user")]
-		public IActionResult UpdateUser([FromForm] NewUserDto newUserDto)
+		public IActionResult UpdateUser(NewUserDto newUserDto)
 		{
 			try
 			{

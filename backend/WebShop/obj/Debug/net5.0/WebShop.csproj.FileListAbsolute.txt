@@ -65,4 +65,3 @@ C:\Users\stefa\OneDrive\Desktop\Web_Projekat\WebShop\backend\WebShop\bin\Debug\n
 C:\Users\stefa\OneDrive\Desktop\Web_Projekat\WebShop\backend\WebShop\bin\Debug\net5.0\System.Runtime.CompilerServices.Unsafe.dll
 C:\Users\stefa\OneDrive\Desktop\Web_Projekat\WebShop\backend\WebShop\bin\Debug\net5.0\BCrypt.Net-Next.dll
 C:\Users\stefa\OneDrive\Desktop\Web_Projekat\WebShop\backend\WebShop\bin\Debug\net5.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
-C:\Users\stefa\OneDrive\Desktop\Web_Projekat\WebShop\backend\WebShop\obj\Debug\net5.0\WebShop.csprojAssemblyReference.cache
